@@ -43,9 +43,9 @@ async def test_exact_match_requires_expected_output(evaluator):
         )
 
 
-async def test_semantic_similarity_passes_above_threshold(evaluator):
+async def test_string_similarity_passes_above_threshold(evaluator):
     outcome = await evaluator.evaluate(
-        EvaluationMethod.SEMANTIC_SIMILARITY,
+        EvaluationMethod.STRING_SIMILARITY,
         actual_output="The quick brown fox jumps over the lazy dog",
         expected_output="The quick brown fox jumps over the lazy dog!",
         criteria={"threshold": 0.9},
@@ -54,9 +54,9 @@ async def test_semantic_similarity_passes_above_threshold(evaluator):
     assert outcome.score > 0.9
 
 
-async def test_semantic_similarity_fails_below_threshold(evaluator):
+async def test_string_similarity_fails_below_threshold(evaluator):
     outcome = await evaluator.evaluate(
-        EvaluationMethod.SEMANTIC_SIMILARITY,
+        EvaluationMethod.STRING_SIMILARITY,
         actual_output="completely unrelated text",
         expected_output="The quick brown fox",
         criteria={"threshold": 0.9},

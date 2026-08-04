@@ -45,7 +45,7 @@ class EvaluationMethod(str, enum.Enum):
     """Supported evaluation strategies for a test case."""
 
     EXACT_MATCH = "exact_match"
-    SEMANTIC_SIMILARITY = "semantic_similarity"
+    STRING_SIMILARITY = "string_similarity"
     LLM_AS_JUDGE = "llm_as_judge"
 
 
@@ -177,6 +177,10 @@ class EvalResult(Base):
     """The outcome of running one test case against one model for one eval run."""
 
     __tablename__ = "eval_results"
+
+    __table_args__ = (
+        UniqueConstraint("run_id", "test_case_id", "model_config_id", name="uq_eval_result_run_case_model"),
+    )
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
     run_id: Mapped[str] = mapped_column(ForeignKey("eval_runs.id"), nullable=False)

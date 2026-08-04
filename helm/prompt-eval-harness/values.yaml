@@ -1,4 +1,5 @@
-replicaCount: 2
+# Set to 1 for SQLite. Use Postgres + replicaCount>1 for HA.
+replicaCount: 1
 
 image:
   repository: prompt-eval-harness
@@ -38,6 +39,32 @@ secrets:
   openaiApiKey: ""
   anthropicApiKey: ""
   googleApiKey: ""
+
+worker:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+redis:
+  image:
+    repository: redis
+    tag: "7-alpine"
+    pullPolicy: IfNotPresent
+  port: 6379
+  persistence:
+    size: 1Gi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
 
 livenessProbe:
   path: /health

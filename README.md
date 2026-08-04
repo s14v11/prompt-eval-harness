@@ -18,7 +18,7 @@ results automatically.
   registered model configs (OpenAI, Anthropic, Google Gemini) in a single batch run.
 - **Pluggable evaluation methods**:
   - `exact_match` — normalized string equality (case/whitespace configurable)
-  - `semantic_similarity` — dependency-free similarity ratio against a threshold
+  - `string_similarity` — dependency-free similarity ratio against a threshold
   - `llm_as_judge` — an LLM scores the output 0–100 against a rubric
 - **Async batch runs** — evaluation runs execute on a Celery worker; watch progress live
   over a WebSocket or poll the REST API.
@@ -99,7 +99,7 @@ All endpoints are mounted under `/api`.
 | GET    | `/api/runs`                                    | List runs                                                |
 | GET    | `/api/runs/{id}`                               | Get a run with all per-test-case results                   |
 | GET    | `/api/runs/{id}/summary`                       | Pass rate / average score, broken down by model              |
-| GET    | `/api/runs/{id}/export`                        | Export results as JSON or CSV (`?format=`)                    |
+| GET    | `/api/runs/{id}/export`                        | Export results as JSON or CSV (`?output_format=`)              |
 | WS     | `/api/runs/{id}/ws`                            | Live run status updates                                        |
 
 Interactive API docs are available at `/docs` (Swagger UI) and `/redoc` while the app is running.

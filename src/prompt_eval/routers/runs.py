@@ -97,7 +97,9 @@ def get_run_summary(run_id: str, db: Session = Depends(get_db)) -> list[EvalRunS
 
 @router.get("/{run_id}/export")
 def export_run(
-    run_id: str, format: str = Query("json", pattern="^(json|csv)$"), db: Session = Depends(get_db)
+    run_id: str,
+    output_format: str = Query("json", pattern="^(json|csv)$"),
+    db: Session = Depends(get_db),
 ) -> StreamingResponse:
     """Export a run's results as either JSON or CSV."""
     run = _get_run_or_404(db, run_id)
@@ -115,7 +117,7 @@ def export_run(
         for r in run.results
     ]
 
-    if format == "json":
+    if output_format == "json":
         buffer = io.StringIO(json.dumps(rows, indent=2))
         media_type = "application/json"
         filename = f"run-{run_id}.json"

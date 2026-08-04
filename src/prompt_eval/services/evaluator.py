@@ -2,7 +2,7 @@
 
 Three strategies are supported:
     * exact_match: normalized string equality.
-    * semantic_similarity: a lightweight, dependency-free similarity ratio
+    * string_similarity: a lightweight, dependency-free similarity ratio
       (difflib's SequenceMatcher) compared against a configurable threshold.
       This avoids requiring an embeddings API/model just to run tests.
     * llm_as_judge: delegates scoring to an LLM, which returns a 0-100 score
@@ -71,20 +71,20 @@ def _score_exact_match(actual: str, expected: str, criteria: dict[str, Any]) -> 
     return EvaluationOutcome(score=1.0 if passed else 0.0, passed=passed, details={"method": "exact_match"})
 
 
-def _score_semantic_similarity(actual: str, expected: str, criteria: dict[str, Any]) -> EvaluationOutcome:
+def _score_string_similarity(actual: str, expected: str, criteria: dict[str, Any]) -> EvaluationOutcome:
     threshold = float(criteria.get("threshold", 0.8))
     ratio = SequenceMatcher(a=expected.strip().lower(), b=actual.strip().lower()).ratio()
     passed = ratio >= threshold
     return EvaluationOutcome(
         score=ratio,
         passed=passed,
-        details={"method": "semantic_similarity", "threshold": threshold, "similarity_ratio": ratio},
+        details={"method": "string_similarity", "threshold": threshold, "similarity_ratio": ratio},
     )
 
 
 def _parse_judge_response(raw_text: str) -> tuple[float, str]:
     """Extract a 0-100 score and rationale from a judge model's raw text response."""
-    match = re.search(r"\{.*\}", raw_text, re.DOTALL)
+    match = re.search(r"\{.*?\}", raw_text, re.DOTALL)
     if not match:
         raise EvaluationError(f"Judge response did not contain a JSON object: {raw_text!r}")
     try:
@@ -129,10 +129,10 @@ class Evaluator:
                 raise EvaluationError("exact_match requires an expected_output.")
             return _score_exact_match(actual_output, expected_output, criteria)
 
-        if method == EvaluationMethod.SEMANTIC_SIMILARITY:
+        if method == EvaluationMethod.STRING_SIMILARITY:
             if expected_output is None:
-                raise EvaluationError("semantic_similarity requires an expected_output.")
-            return _score_semantic_similarity(actual_output, expected_output, criteria)
+                raise EvaluationError("string_similarity requires an expected_output.")
+            return _score_string_similarity(actual_output, expected_output, criteria)
 
         if method == EvaluationMethod.LLM_AS_JUDGE:
             return await self._score_llm_as_judge(actual_output, expected_output, criteria)

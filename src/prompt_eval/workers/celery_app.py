@@ -97,7 +97,8 @@ async def _run_evaluation(run_id: str) -> None:
                     result.passed = False
 
                 db.add(result)
-                db.commit()
+
+        db.commit()
 
         run.status = RunStatus.COMPLETED
         run.completed_at = datetime.now(UTC)
