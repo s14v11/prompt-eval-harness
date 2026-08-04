@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  ENVIRONMENT: {{ .Values.env.environment | quote }}
+  DATABASE_URL: {{ .Values.env.databaseUrl | quote }}
+  REDIS_URL: {{ .Values.env.redisUrl | quote }}
+  CORS_ORIGINS: {{ .Values.env.corsOrigins | quote }}
+  DEFAULT_JUDGE_MODEL: {{ .Values.env.defaultJudgeModel | quote }}

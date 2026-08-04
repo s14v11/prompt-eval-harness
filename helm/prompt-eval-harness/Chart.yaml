@@ -1,0 +1,13 @@
+apiVersion: v2
+name: prompt-eval-harness
+description: A Helm chart for deploying the Prompt Eval Harness (FastAPI + Celery + Redis) to Kubernetes.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - llm
+  - prompt-engineering
+  - evaluation
+  - fastapi
+maintainers:
+  - name: Alexander Medalla
