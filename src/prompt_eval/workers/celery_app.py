@@ -9,7 +9,7 @@ polling `GET /runs/{id}` or the `/runs/{id}/ws` WebSocket see live progress.
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from celery import Celery
 
@@ -100,9 +100,10 @@ async def _run_evaluation(run_id: str) -> None:
                 db.commit()
 
         run.status = RunStatus.COMPLETED
-        run.completed_at = datetime.now(timezone.utc)
+        run.completed_at = datetime.now(UTC)
         db.commit()
-    except Exception as exc:  # noqa: BLE001 - mark the run failed, then re-raise for Celery
+    except Exception as exc:
+        # Record the failure on the run before re-raising so Celery still sees the error.
         run = db.get(EvalRun, run_id)
         if run is not None:
             run.status = RunStatus.FAILED

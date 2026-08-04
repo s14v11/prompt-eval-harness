@@ -13,6 +13,13 @@ from prompt_eval.schemas import ModelConfigCreate, ModelConfigRead
 router = APIRouter(prefix="/model-configs", tags=["model-configs"])
 
 
+def _get_model_config_or_404(db: Session, model_config_id: str) -> ModelConfig:
+    model_config = db.get(ModelConfig, model_config_id)
+    if model_config is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"Model config {model_config_id!r} not found.")
+    return model_config
+
+
 @router.get("", response_model=list[ModelConfigRead])
 def list_model_configs(db: Session = Depends(get_db)) -> list[ModelConfig]:
     """List all registered model configurations."""
@@ -37,17 +44,12 @@ def create_model_config(payload: ModelConfigCreate, db: Session = Depends(get_db
 @router.get("/{model_config_id}", response_model=ModelConfigRead)
 def get_model_config(model_config_id: str, db: Session = Depends(get_db)) -> ModelConfig:
     """Fetch a single model configuration by id."""
-    model_config = db.get(ModelConfig, model_config_id)
-    if model_config is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, f"Model config {model_config_id!r} not found.")
-    return model_config
+    return _get_model_config_or_404(db, model_config_id)
 
 
 @router.delete("/{model_config_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_model_config(model_config_id: str, db: Session = Depends(get_db)) -> None:
     """Delete a model configuration."""
-    model_config = db.get(ModelConfig, model_config_id)
-    if model_config is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, f"Model config {model_config_id!r} not found.")
+    model_config = _get_model_config_or_404(db, model_config_id)
     db.delete(model_config)
     db.commit()

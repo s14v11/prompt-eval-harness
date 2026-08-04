@@ -100,7 +100,7 @@ class LLMClient:
                 max_tokens=max_tokens,
                 **extra,
             )
-        except Exception as exc:  # noqa: BLE001 - normalize all SDK errors
+        except Exception as exc:
             raise LLMClientError(f"OpenAI call failed: {exc}") from exc
         text = response.choices[0].message.content or ""
         return text, response.model_dump()
@@ -122,7 +122,7 @@ class LLMClient:
                 messages=[{"role": "user", "content": prompt}],
                 **extra,
             )
-        except Exception as exc:  # noqa: BLE001 - normalize all SDK errors
+        except Exception as exc:
             raise LLMClientError(f"Anthropic call failed: {exc}") from exc
         text = "".join(block.text for block in response.content if block.type == "text")
         return text, response.model_dump()
@@ -145,7 +145,7 @@ class LLMClient:
                     temperature=temperature, max_output_tokens=max_tokens, **extra
                 ),
             )
-        except Exception as exc:  # noqa: BLE001 - normalize all SDK errors
+        except Exception as exc:
             raise LLMClientError(f"Google Gemini call failed: {exc}") from exc
         text = response.text or ""
         raw = {"candidates": [c.finish_reason for c in response.candidates]} if response.candidates else {}

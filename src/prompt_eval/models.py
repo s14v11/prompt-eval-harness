@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import enum
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import (
     JSON,
@@ -30,7 +30,7 @@ def _uuid() -> str:
 
 def _now() -> datetime:
     """Return the current UTC time, used as a default for timestamp columns."""
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class Provider(str, enum.Enum):
@@ -69,7 +69,7 @@ class Prompt(Base):
     created_at: Mapped[datetime] = mapped_column(default=_now)
     updated_at: Mapped[datetime] = mapped_column(default=_now, onupdate=_now)
 
-    versions: Mapped[list["PromptVersion"]] = relationship(
+    versions: Mapped[list[PromptVersion]] = relationship(
         back_populates="prompt", cascade="all, delete-orphan", order_by="PromptVersion.version_number"
     )
 
@@ -88,8 +88,8 @@ class PromptVersion(Base):
     commit_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=_now)
 
-    prompt: Mapped["Prompt"] = relationship(back_populates="versions")
-    results: Mapped[list["EvalResult"]] = relationship(back_populates="prompt_version")
+    prompt: Mapped[Prompt] = relationship(back_populates="versions")
+    results: Mapped[list[EvalResult]] = relationship(back_populates="prompt_version")
 
 
 class TestSuite(Base):
@@ -102,10 +102,10 @@ class TestSuite(Base):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=_now)
 
-    test_cases: Mapped[list["TestCase"]] = relationship(
+    test_cases: Mapped[list[TestCase]] = relationship(
         back_populates="suite", cascade="all, delete-orphan"
     )
-    runs: Mapped[list["EvalRun"]] = relationship(back_populates="suite")
+    runs: Mapped[list[EvalRun]] = relationship(back_populates="suite")
 
 
 class TestCase(Base):
@@ -124,8 +124,8 @@ class TestCase(Base):
     evaluation_criteria: Mapped[dict] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(default=_now)
 
-    suite: Mapped["TestSuite"] = relationship(back_populates="test_cases")
-    results: Mapped[list["EvalResult"]] = relationship(back_populates="test_case")
+    suite: Mapped[TestSuite] = relationship(back_populates="test_cases")
+    results: Mapped[list[EvalResult]] = relationship(back_populates="test_case")
 
 
 class ModelConfig(Base):
@@ -142,7 +142,7 @@ class ModelConfig(Base):
     extra_params: Mapped[dict] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(default=_now)
 
-    results: Mapped[list["EvalResult"]] = relationship(back_populates="model_config")
+    results: Mapped[list[EvalResult]] = relationship(back_populates="model_config")
 
 
 eval_run_model_configs = Table(
@@ -167,10 +167,10 @@ class EvalRun(Base):
     created_at: Mapped[datetime] = mapped_column(default=_now)
     completed_at: Mapped[datetime | None] = mapped_column(nullable=True)
 
-    prompt_version: Mapped["PromptVersion"] = relationship()
-    suite: Mapped["TestSuite"] = relationship(back_populates="runs")
-    model_configs: Mapped[list["ModelConfig"]] = relationship(secondary=eval_run_model_configs)
-    results: Mapped[list["EvalResult"]] = relationship(back_populates="run", cascade="all, delete-orphan")
+    prompt_version: Mapped[PromptVersion] = relationship()
+    suite: Mapped[TestSuite] = relationship(back_populates="runs")
+    model_configs: Mapped[list[ModelConfig]] = relationship(secondary=eval_run_model_configs)
+    results: Mapped[list[EvalResult]] = relationship(back_populates="run", cascade="all, delete-orphan")
 
 
 class EvalResult(Base):
@@ -193,7 +193,7 @@ class EvalResult(Base):
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=_now)
 
-    run: Mapped["EvalRun"] = relationship(back_populates="results")
-    test_case: Mapped["TestCase"] = relationship(back_populates="results")
-    model_config: Mapped["ModelConfig"] = relationship(back_populates="results")
-    prompt_version: Mapped["PromptVersion"] = relationship(back_populates="results")
+    run: Mapped[EvalRun] = relationship(back_populates="results")
+    test_case: Mapped[TestCase] = relationship(back_populates="results")
+    model_config: Mapped[ModelConfig] = relationship(back_populates="results")
+    prompt_version: Mapped[PromptVersion] = relationship(back_populates="results")
