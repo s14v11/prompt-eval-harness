@@ -37,6 +37,9 @@ prompt_eval.db
 .idea/
 *.swp
 
+# Local notes
+CLAUDE.md
+
 # OS
 .DS_Store
 Thumbs.db
